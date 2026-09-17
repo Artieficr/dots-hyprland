@@ -21,6 +21,11 @@ Singleton {
     property real swapUsedPercentage: swapTotal > 0 ? (swapUsed / swapTotal) : 0
     property real cpuUsage: 0
     property var previousCpuStats
+    property real cpuTemperature: 0
+    property real gpuUsage: 0
+    property real gpuVramUsage: 0
+    property real gpuTempemperature: 0
+    property bool gpuAvailable: true
 
     property string maxAvailableMemoryString: kbToGbString(ResourceUsage.memoryTotal)
     property string maxAvailableSwapString: kbToGbString(ResourceUsage.swapTotal)
@@ -92,6 +97,12 @@ Singleton {
                 previousCpuStats = { total, idle }
             }
 
+            // Sensor process calls
+            cpuTempProc.running = true
+            gpuTempProc.running = true
+            gpuUsageProc.running = true
+            gpuVramProc.running = true
+
             root.updateHistories()
             interval = Config.options?.resources?.updateInterval ?? 3000
         }
@@ -112,6 +123,56 @@ Singleton {
             id: outputCollector
             onStreamFinished: {
                 root.maxAvailableCpuString = (parseFloat(outputCollector.text) / 1000).toFixed(0) + " GHz"
+            }
+        }
+    }
+
+    Process {
+        id: cpuTempProc
+        command: [
+            "/bin/bash",
+            "-c",
+            "cat /sys/class/hwmon/hwmon2/temp1_input"
+        ]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                cpuTemperature = Number(this.text.trim()) / 1000
+            }
+        }
+    }
+
+    Process {
+        id: gpuTempProc
+        command: ["sh", "-c", "cat /sys/class/drm/card1/device/hwmon/hwmon5/temp2_input"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                gpuTempemperature = Math.round(Number(this.text.trim()) / 1000)
+            }
+        }
+    }
+
+    Process {
+        id: gpuUsageProc
+        command: ["sh", "-c", "cat /sys/class/drm/card1/device/gpu_busy_percent"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                gpuUsage = Number(this.text.trim()) / 100
+            }
+        }
+    }
+
+    Process {
+        id: gpuVramProc
+        command: [
+            "sh", "-c",
+            "cat /sys/class/drm/card1/device/mem_info_vram_used; echo ' '; cat /sys/class/drm/card1/device/mem_info_vram_total"
+        ]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                let parts = this.text.trim().split(/ +/)
+                let used = Number(parts[0] || 0)
+                let total = Number(parts[1] || 1)
+                gpuVramUsage = used / total
             }
         }
     }

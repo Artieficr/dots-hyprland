@@ -86,7 +86,42 @@ StyledPopup {
                 StyledPopupValueRow {
                     icon: "bolt"
                     label: Translation.tr("Load:")
-                    value: `${Math.round(ResourceUsage.cpuUsage * 100)}%`
+                    value: (ResourceUsage.cpuUsage > 0.8 ? Translation.tr("High") : ResourceUsage.cpuUsage > 0.4 ? Translation.tr("Medium") : Translation.tr("Low")) + ` (${Math.round(ResourceUsage.cpuUsage * 100)}%)`
+                }
+                StyledPopupValueRow {
+                    icon: "thermometer"
+                    label: Translation.tr("Temp:")
+                    value: `${Math.round(ResourceUsage.cpuTemperature)} °C`
+                }
+            }
+        }
+
+        ColumnLayout {
+            Layout.alignment: Qt.AlignTop
+            spacing: 8
+            visible: ResourceUsage.gpuAvailable
+
+            StyledPopupHeaderRow {
+                icon: "empty_dashboard"
+                label: "GPU"
+            }
+            ColumnLayout {
+                StyledPopupValueRow {
+                    icon: "bolt"
+                    label: Translation.tr("Load:")
+                    value: (ResourceUsage.gpuUsage > 0.8 ? Translation.tr("High") : ResourceUsage.gpuUsage > 0.4 ? Translation.tr("Medium") : Translation.tr("Low")) + ` (${Math.round(ResourceUsage.gpuUsage * 100)}%)`
+                }
+
+                StyledPopupValueRow {
+                    icon: "clock_loader_60"
+                    label: Translation.tr("VRAM Used:")
+                    value: ` ${Math.round(ResourceUsage.gpuVramUsage * 100)} %`
+                }
+
+                StyledPopupValueRow {
+                    icon: "thermometer"
+                    label: Translation.tr("Temp:")
+                    value: ` ${ResourceUsage.gpuTempemperature} °C`
                 }
             }
         }

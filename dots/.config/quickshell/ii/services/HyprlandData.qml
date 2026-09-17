@@ -88,9 +88,18 @@ Singleton {
 
         function onRawEvent(event) {
             // console.log("Hyprland raw event:", event.name);
-            if (["openlayer", "closelayer", "screencast"].includes(event.name)) return;
-            updateAll()
+            if (["openlayer", "closelayer", "screencast", "screencastv2"].includes(event.name)) return;
+            updateAllDebounce.restart();
         }
+    }
+
+    // Custom fix for hyprctl spawn storm (end-4/dots-hyprland#3631):
+    // coalesce bursts of raw events (e.g. 4 fire per workspace switch) into one updateAll() call.
+    Timer {
+        id: updateAllDebounce
+        interval: 60
+        repeat: false
+        onTriggered: root.updateAll()
     }
 
     Process {

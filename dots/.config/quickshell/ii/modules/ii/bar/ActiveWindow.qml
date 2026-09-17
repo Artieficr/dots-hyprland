@@ -13,8 +13,13 @@ Item {
     readonly property Toplevel activeWindow: ToplevelManager.activeToplevel
 
     property string activeWindowAddress: `0x${activeWindow?.HyprlandToplevel?.address}`
-    property bool focusingThisMonitor: HyprlandData.activeWorkspace?.monitor == monitor?.name
-    property var biggestWindow: HyprlandData.biggestWindowForWorkspace(HyprlandData.monitors[root.monitor?.id]?.activeWorkspace.id)
+    // Custom fix (end-4/dots-hyprland#3631): use Quickshell's native, event-driven Hyprland
+    // data (always fresh) instead of the polled HyprlandData singleton, which can go stale
+    // when apps that generate frequent background Hyprland events (e.g. DaVinci Resolve,
+    // FoundryVTT) race the debounced HyprlandData.updateAll() and leave it stuck on
+    // whichever workspace was active during the last successful poll.
+    property bool focusingThisMonitor: Hyprland.focusedMonitor?.id == monitor?.id
+    property var biggestWindow: HyprlandData.biggestWindowForWorkspace(root.monitor?.activeWorkspace?.id)
 
     implicitWidth: colLayout.implicitWidth
 
