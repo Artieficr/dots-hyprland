@@ -28,7 +28,7 @@ Rectangle {
             "type": "todo",
             "name": Translation.tr("To Do"),
             "icon": "done_outline",
-            "widget": "todo/TodoWidget.qml"
+            "widget": Config.options.sidebar.obsidianTasks.enable ? "todo/ObsidianTasksWidget.qml" : "todo/TodoWidget.qml"
         },
         {
             "type": "timer",
@@ -111,7 +111,7 @@ Rectangle {
         }
 
         StyledText {
-            property int remainingTasks: Todo.list.filter(task => !task.done).length
+            property int remainingTasks: ObsidianTasks.enabled ? ObsidianTasks.openCount : Todo.list.filter(task => !task.done).length
             Layout.margins: 10
             Layout.leftMargin: 0
             // text: `${DateTime.collapsedCalendarFormat}   •   ${remainingTasks} task${remainingTasks > 1 ? "s" : ""}`
@@ -205,6 +205,9 @@ Rectangle {
 
                 Connections {
                     target: root
+                    function onTabsChanged() { // To Do source switched in settings
+                        tabStack.source = root.tabs[root.selectedTab].widget;
+                    }
                     function onSelectedTabChanged() {
                         if (root.currentTab > root.previousIndex)
                             tabSwitchBehavior.animation.down = true;

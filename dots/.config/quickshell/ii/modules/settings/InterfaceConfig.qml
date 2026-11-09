@@ -479,6 +479,29 @@ ContentPage {
         }
 
         ConfigSwitch {
+            buttonIcon: "task_alt"
+            text: Translation.tr('Use Obsidian Tasks for To Do')
+            checked: Config.options.sidebar.obsidianTasks.enable
+            onCheckedChanged: {
+                Config.options.sidebar.obsidianTasks.enable = checked;
+            }
+            StyledToolTip {
+                text: Translation.tr("Shows and edits tasks from an Obsidian Tasks plugin file (emoji format)\ninstead of the built-in to-do list")
+            }
+        }
+
+        MaterialTextArea {
+            Layout.fillWidth: true
+            visible: Config.options.sidebar.obsidianTasks.enable
+            placeholderText: Translation.tr("Tasks file, e.g. ~/Obsidian/Vault/Tasks.md")
+            text: Config.options.sidebar.obsidianTasks.path
+            wrapMode: TextEdit.Wrap
+            onTextChanged: {
+                Config.options.sidebar.obsidianTasks.path = text;
+            }
+        }
+
+        ConfigSwitch {
             buttonIcon: "translate"
             text: Translation.tr('Enable translator')
             checked: Config.options.sidebar.translator.enable

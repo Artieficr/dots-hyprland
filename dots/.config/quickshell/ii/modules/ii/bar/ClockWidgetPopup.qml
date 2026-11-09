@@ -12,9 +12,11 @@ StyledPopup {
     property string todosSection: getUpcomingTodos()
 
     function getUpcomingTodos() {
-        const unfinishedTodos = Todo.list.filter(function (item) {
-            return !item.done;
-        });
+        const unfinishedTodos = ObsidianTasks.enabled
+            ? ObsidianTasks.todayTasks.map(task => ({ "content": ObsidianTasks.plainText(task) }))
+            : Todo.list.filter(function (item) {
+                return !item.done;
+            });
         if (unfinishedTodos.length === 0) {
             return Translation.tr("No pending tasks");
         }

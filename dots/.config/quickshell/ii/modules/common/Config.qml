@@ -497,6 +497,10 @@ Singleton {
 
             property JsonObject sidebar: JsonObject {
                 property bool keepRightSidebarLoaded: true
+                property JsonObject obsidianTasks: JsonObject { // Fork: To Do tab backed by an Obsidian Tasks file
+                    property bool enable: false
+                    property string path: "" // Absolute path to the .md file, ~ allowed
+                }
                 property JsonObject translator: JsonObject {
                     property bool enable: false
                     property int delay: 300 // Delay before sending request. Reduces (potential) rate limits and lag.
